@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import sample.bmp.BmpDecoder;
+import sample.bmp.BmpFile;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -17,13 +18,21 @@ public class Controller {
 
     @FXML
     void initialize() throws IOException {
-        System.out.println("kek");
-        File file = new File("image.bmp");
+        String fileName = "50.bmp";
+
+        File file = new File(fileName);
         Image image = new Image(file.toURI().toString());
         imageView.setImage(image);
 
         BmpDecoder bmpDecoder = new BmpDecoder();
-        bmpDecoder.decode("image.bmp");
+        BmpFile bmp = bmpDecoder.decode(fileName);
+        int[][] matrix = bmp.getPixels();
+        for (int[] line : matrix) {
+            for(int pixel : line) {
+                System.out.print(pixel + " ");
+            }
+            System.out.println();
+        }
 
     }
 }
