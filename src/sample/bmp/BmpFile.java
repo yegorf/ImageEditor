@@ -6,9 +6,17 @@ public class BmpFile {
     private int height;
     private int size;
     private int bitCount;
-    private byte[] colorTable;
     private byte[] image;
     private int[][] pixels;
+    private int offset;
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
 
     public int[][] getPixels() {
         return pixels;
@@ -18,13 +26,6 @@ public class BmpFile {
         this.pixels = pixels;
     }
 
-    public byte[] getColorTable() {
-        return colorTable;
-    }
-
-    public void setColorTable(byte[] colorTable) {
-        this.colorTable = colorTable;
-    }
 
     public byte[] getImage() {
         return image;
