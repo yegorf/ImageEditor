@@ -17,9 +17,4 @@ public class BytesConverter {
         }
         return matrix;
     }
-
-    public static byte[] matrixToBytes() {
-
-        return new byte[10];
-    }
 }

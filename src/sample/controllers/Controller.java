@@ -2,20 +2,24 @@ package sample.controllers;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import sample.bmp.BmpFile;
 import sample.bmp.DecoderBmp;
-import sample.canvas.Canvas;
 import sample.canvas.NewCanvas;
 import sample.jpeg.JpegEncoder;
+import sample.shapes.Rect;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +28,10 @@ import java.io.IOException;
 public class Controller {
     @FXML
     private Pane pane;
+    @FXML
+    private BorderPane oldPane;
+    @FXML
+    private BorderPane newPane;
     @FXML
     private ImageView imageOld;
     @FXML
@@ -34,6 +42,8 @@ public class Controller {
     private Button canvasColorBtn;
     @FXML
     private Button saveBtn;
+    @FXML
+    private Button exitBtn;
     @FXML
     private Button chooseBtn;
     @FXML
@@ -53,15 +63,25 @@ public class Controller {
     @FXML
     private Text wText;
     @FXML
+    private Text hCanvasText;
+    @FXML
+    private Text wCanvasText;
+    @FXML
     private ColorPicker colorPicker;
 
     private BmpFile bmp = new BmpFile();
+
+    Group group = new Group();//
 
     @FXML
     void initialize() {
         NewCanvas newCanvas = new NewCanvas();
         hText.setVisible(false);
         wText.setVisible(false);
+        hCanvasText.setVisible(false);
+        wCanvasText.setVisible(false);
+
+        exitBtn.setOnAction(e -> System.exit(0));
 
         colorPicker.setOnAction(e -> {
             String hex = String.copyValueOf(colorPicker.getValue().toString().toCharArray(), 2, 6);
@@ -90,6 +110,18 @@ public class Controller {
 
                     int[][] canvasMatrix = newCanvas.generateCanvas(bmp.getWidth(), bmp.getHeight());
                     drawImage(canvasMatrix, imageNew);
+                    hCanvasText.setVisible(true);
+                    wCanvasText.setVisible(true);
+                    hCanvasText.setText("Высота: " + newCanvas.getHeight());
+                    wCanvasText.setText("Ширина: " + newCanvas.getWidth());
+
+                    //oldPane.getChildren().add(imageOld);//
+                    oldPane.setCenter(imageOld);
+                    newPane.setCenter(imageNew);
+                    //imageOld.setX(10);
+                    //imageOld.setY(10);
+
+
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -101,6 +133,10 @@ public class Controller {
             int width = Integer.parseInt(canvasWidth.getText());
             int[][] canvasMatrix = newCanvas.generateCanvas(width, height);
             drawImage(canvasMatrix, imageNew);
+            hCanvasText.setVisible(true);
+            wCanvasText.setVisible(true);
+            hCanvasText.setText("Высота: " + newCanvas.getHeight());
+            wCanvasText.setText("Ширина: " + newCanvas.getWidth());
         });
 
         canvasColorBtn.setOnAction(e -> {
@@ -120,21 +156,49 @@ public class Controller {
         imgSizeBtn.setOnAction(e -> {
             int width = Integer.parseInt(imageWidth.getText());
             int height = Integer.parseInt(imageHeight.getText());
-
             imageOld.setFitWidth(width);
-            imageOld.setFitWidth(height);
+            imageOld.setFitHeight(height);
+        });
+
+        //Выделение
+        Rect rect = new Rect();
+//        imageOld.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+//            System.out.println("pressed");
+//            rect.setStartX(e.getX());
+//            rect.setStartY(e.getY());
+//        });
+
+        oldPane.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+            System.out.println("pressed");
+            rect.setStartX(e.getX());
+            rect.setStartY(e.getY());
+        });
+
+//        imageOld.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
+//            System.out.println("released");
+//            System.out.println("start: " + rect.getStartX() + " " + rect.getStartY());
+//            System.out.println("end: " + e.getX() + " " + e.getY());
+//            Rectangle rectangle = new Rectangle(rect.getStartX(), rect.getStartY(), 50, 50);
+//            oldPane.getChildren().add(rectangle);
+//        });
+
+        oldPane.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
+            System.out.println("released");
+            System.out.println("start: " + rect.getStartX() + " " + rect.getStartY());
+            System.out.println("end: " + e.getX() + " " + e.getY());
+            Rectangle rectangle = new Rectangle(rect.getStartX(), rect.getStartY(), 50, 50);
+            oldPane.getChildren().add(rectangle);
+        });
+
+        imageOld.addEventFilter(MouseEvent.MOUSE_DRAGGED, e -> {
+
         });
     }
 
     public void decode(String fileName) throws Exception {
         File file = new File(fileName);
-
         DecoderBmp decoderBmp = new DecoderBmp();
         bmp = decoderBmp.loadBMP(file);
-        System.out.println("Width: " + bmp.getWidth());
-        System.out.println("Height: " + bmp.getHeight());
-
-        printMatrix(bmp.getPixels());
         drawImage(bmp.getPixels(), imageOld);
     }
 
@@ -143,6 +207,9 @@ public class Controller {
         imageView.setFitWidth(matrix[0].length);
         imageView.setFitHeight(matrix.length);
         imageView.setImage(SwingFXUtils.toFXImage(drawImage, null));
+
+        //oldPane.setCenter(imageOld);
+        //newPane.setCenter(imageNew);
     }
 
     public void printMatrix(int[][] matrix) {

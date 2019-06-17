@@ -17,7 +17,7 @@ public class DecoderBmp {
     public BmpFile loadBMP (File file) throws Exception {
         long total = file.length();
         if(total > Integer.MAX_VALUE) {
-            throw new Exception("The BMP is so big to be loaded");
+            throw new Exception("Файл слишком большой");
         }
         byte[] bytes = new byte[(int)total];
         bmp.setImage(bytes);
@@ -25,7 +25,7 @@ public class DecoderBmp {
         in.read(bytes);
         int totalBytes = getDecimalValueLSB(bytes, 2, 5);
         if(!checkBMP(bytes) || totalBytes != (int)total) {
-            throw new Exception("This is not an original BMP file");
+            throw new Exception("Это не BMP!");
         }
 
         int offset = getDecimalValueLSB(bytes, 10, 13);
@@ -35,11 +35,6 @@ public class DecoderBmp {
         bmp.setWidth(width);
         int height = getDecimalValueLSB(bytes, 22, 25);
         bmp.setHeight(height);
-
-        int depth = getDecimalValueLSB(bytes, 28, 29);
-        if(depth != 24) {
-            throw new Exception("This decoder accept 24-bits BMP image only");
-        }
 
         int size = getDecimalValueLSB(bytes, 34, 37);
         bmp.setSize(size);
