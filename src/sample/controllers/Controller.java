@@ -3,17 +3,19 @@ package sample.controllers;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import sample.bmp.BmpFile;
 import sample.bmp.DecoderBmp;
 import sample.canvas.Canvas;
+import sample.canvas.NewCanvas;
 import sample.jpeg.JpegEncoder;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -22,42 +24,51 @@ import java.io.IOException;
 public class Controller {
     @FXML
     private Pane pane;
-
     @FXML
-    private ImageView imageView;
-
+    private ImageView imageOld;
+    @FXML
+    private ImageView imageNew;
     @FXML
     private Button canvasSizeBtn;
-
     @FXML
     private Button canvasColorBtn;
-
     @FXML
     private Button saveBtn;
-
     @FXML
     private Button chooseBtn;
-
     @FXML
     private Button imgSizeBtn;
-
     @FXML
-    private TextField canvasSize;
-
+    private TextField canvasHeight;
+    @FXML
+    private TextField canvasWidth;
     @FXML
     private TextField canvasColor;
-
     @FXML
     private TextField imageWidth;
-
     @FXML
     private TextField imageHeight;
+    @FXML
+    private Text hText;
+    @FXML
+    private Text wText;
+    @FXML
+    private ColorPicker colorPicker;
 
     private BmpFile bmp = new BmpFile();
 
     @FXML
-    void initialize() throws Exception {
-        Canvas canvas = new Canvas();
+    void initialize() {
+        NewCanvas newCanvas = new NewCanvas();
+        hText.setVisible(false);
+        wText.setVisible(false);
+
+        colorPicker.setOnAction(e -> {
+            String hex = String.copyValueOf(colorPicker.getValue().toString().toCharArray(), 2, 6);
+            int color = Integer.parseInt(hex, 16);
+            int[][] matrix = newCanvas.changeColor(color);
+            drawImage(matrix, imageNew);
+        });
 
         chooseBtn.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
@@ -69,11 +80,16 @@ public class Controller {
                     new FileChooser.ExtensionFilter("BMP images (*.bmp)", "*.bmp"));
             File file = fileChooser.showOpenDialog(pane.getScene().getWindow());
             if (file != null) {
-                //System.out.println(file.getName());
                 fileName.append(file.getAbsolutePath());
                 try {
                     decode(fileName.toString());
-                    canvas.setMatrix(bmp.getPixels());
+                    hText.setText("Высота: " + bmp.getHeight());
+                    wText.setText("Ширина: " + bmp.getWidth());
+                    hText.setVisible(true);
+                    wText.setVisible(true);
+
+                    int[][] canvasMatrix = newCanvas.generateCanvas(bmp.getWidth(), bmp.getHeight());
+                    drawImage(canvasMatrix, imageNew);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -81,24 +97,21 @@ public class Controller {
         });
 
         canvasSizeBtn.setOnAction(e -> {
-            int size = Integer.parseInt(canvasSize.getText());
-            int[][] matrix = canvas.resize(size);
-            bmp.setHeight(matrix.length);
-            bmp.setWidth(matrix[0].length);
-            bmp.setPixels(matrix);
-            drawImage(bmp, imageView);
+            int height = Integer.parseInt(canvasHeight.getText());
+            int width = Integer.parseInt(canvasWidth.getText());
+            int[][] canvasMatrix = newCanvas.generateCanvas(width, height);
+            drawImage(canvasMatrix, imageNew);
         });
 
         canvasColorBtn.setOnAction(e -> {
             int color = Integer.parseInt(canvasColor.getText());
-            int[][] matrix = canvas.changeColor(bmp.getPixels(), bmp.getWidth(), bmp.getHeight(), color);
-            bmp.setPixels(matrix);
-            drawImage(bmp, imageView);
+            int[][] matrix = newCanvas.changeColor(color);
+            drawImage(matrix, imageNew);
         });
 
         saveBtn.setOnAction(e -> {
             try {
-                JpegEncoder.saveJpeg(bmp.getPixels(), bmp.getWidth(), bmp.getHeight());
+                JpegEncoder.saveJpeg(newCanvas.getMatrix(), newCanvas.getWidth(), newCanvas.getHeight());
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -108,8 +121,8 @@ public class Controller {
             int width = Integer.parseInt(imageWidth.getText());
             int height = Integer.parseInt(imageHeight.getText());
 
-            imageView.setFitWidth(width);
-            imageView.setFitWidth(height);
+            imageOld.setFitWidth(width);
+            imageOld.setFitWidth(height);
         });
     }
 
@@ -122,13 +135,13 @@ public class Controller {
         System.out.println("Height: " + bmp.getHeight());
 
         printMatrix(bmp.getPixels());
-        drawImage(bmp, imageView);
+        drawImage(bmp.getPixels(), imageOld);
     }
 
-    public void drawImage(BmpFile bmp, ImageView imageView) {
-        BufferedImage drawImage = JpegEncoder.encode(bmp.getPixels(), bmp.getWidth(), bmp.getHeight());
-        imageView.setFitWidth(bmp.getWidth());
-        imageView.setFitHeight(bmp.getHeight());
+    public void drawImage(int[][] matrix, ImageView imageView) {
+        BufferedImage drawImage = JpegEncoder.encode(matrix, matrix[0].length, matrix.length);
+        imageView.setFitWidth(matrix[0].length);
+        imageView.setFitHeight(matrix.length);
         imageView.setImage(SwingFXUtils.toFXImage(drawImage, null));
     }
 
