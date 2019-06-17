@@ -11,6 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -71,8 +72,6 @@ public class Controller {
 
     private BmpFile bmp = new BmpFile();
 
-    Group group = new Group();//
-
     @FXML
     void initialize() {
         NewCanvas newCanvas = new NewCanvas();
@@ -115,12 +114,8 @@ public class Controller {
                     hCanvasText.setText("Высота: " + newCanvas.getHeight());
                     wCanvasText.setText("Ширина: " + newCanvas.getWidth());
 
-                    //oldPane.getChildren().add(imageOld);//
                     oldPane.setCenter(imageOld);
                     newPane.setCenter(imageNew);
-                    //imageOld.setX(10);
-                    //imageOld.setY(10);
-
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -162,11 +157,6 @@ public class Controller {
 
         //Выделение
         Rect rect = new Rect();
-//        imageOld.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
-//            System.out.println("pressed");
-//            rect.setStartX(e.getX());
-//            rect.setStartY(e.getY());
-//        });
 
         oldPane.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
             System.out.println("pressed");
@@ -174,19 +164,33 @@ public class Controller {
             rect.setStartY(e.getY());
         });
 
-//        imageOld.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
-//            System.out.println("released");
-//            System.out.println("start: " + rect.getStartX() + " " + rect.getStartY());
-//            System.out.println("end: " + e.getX() + " " + e.getY());
-//            Rectangle rectangle = new Rectangle(rect.getStartX(), rect.getStartY(), 50, 50);
-//            oldPane.getChildren().add(rectangle);
-//        });
-
         oldPane.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
             System.out.println("released");
             System.out.println("start: " + rect.getStartX() + " " + rect.getStartY());
             System.out.println("end: " + e.getX() + " " + e.getY());
-            Rectangle rectangle = new Rectangle(rect.getStartX(), rect.getStartY(), 50, 50);
+
+            double x, y, w, h;
+            if (e.getX() > (int) rect.getStartX()) {
+                x = rect.getStartX();
+                w = e.getX() - rect.getStartX();
+            } else {
+                x = e.getX();
+                w = rect.getStartX() - e.getX();
+            }
+
+            if (e.getY() > (int) rect.getStartY()) {
+                y = rect.getStartY();
+                h = e.getY() - rect.getStartY();
+            } else {
+                y = e.getY();
+                h = rect.getStartY() - e.getY();
+            }
+
+            Rectangle rectangle = new Rectangle(x,y,w,h);
+            rectangle.setStroke(Color.rgb(0, 0, 0));
+            rectangle.setStrokeWidth(2);
+            rectangle.setFill(Color.rgb(255, 255, 255, 0.001));
+
             oldPane.getChildren().add(rectangle);
         });
 
@@ -194,6 +198,7 @@ public class Controller {
 
         });
     }
+
 
     public void decode(String fileName) throws Exception {
         File file = new File(fileName);
@@ -207,9 +212,6 @@ public class Controller {
         imageView.setFitWidth(matrix[0].length);
         imageView.setFitHeight(matrix.length);
         imageView.setImage(SwingFXUtils.toFXImage(drawImage, null));
-
-        //oldPane.setCenter(imageOld);
-        //newPane.setCenter(imageNew);
     }
 
     public void printMatrix(int[][] matrix) {
