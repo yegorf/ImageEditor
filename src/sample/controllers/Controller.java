@@ -2,8 +2,7 @@ package sample.controllers;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.TextField;
@@ -20,6 +19,7 @@ import sample.bmp.DecoderBmp;
 import sample.canvas.NewCanvas;
 import sample.jpeg.JpegEncoder;
 import sample.shapes.Rect;
+import sample.tools.ImageCutter;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -39,6 +39,8 @@ public class Controller {
     private ImageView imageNew;
     @FXML
     private Button canvasSizeBtn;
+    @FXML
+    private Button clearBtn;
     @FXML
     private Button canvasColorBtn;
     @FXML
@@ -71,6 +73,10 @@ public class Controller {
     private ColorPicker colorPicker;
 
     private BmpFile bmp = new BmpFile();
+
+    private int preX = 0;
+    private int preY = 0;
+    private boolean moving;
 
     @FXML
     void initialize() {
@@ -115,7 +121,11 @@ public class Controller {
                     wCanvasText.setText("Ширина: " + newCanvas.getWidth());
 
                     oldPane.setCenter(imageOld);
+                    oldPane.setMaxWidth(imageOld.getFitWidth());
+                    oldPane.setMaxHeight(imageOld.getFitHeight());
                     newPane.setCenter(imageNew);
+                    newPane.setMaxWidth(imageNew.getFitWidth());
+                    newPane.setMaxHeight(imageNew.getFitHeight());
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -127,6 +137,8 @@ public class Controller {
             int height = Integer.parseInt(canvasHeight.getText());
             int width = Integer.parseInt(canvasWidth.getText());
             int[][] canvasMatrix = newCanvas.generateCanvas(width, height);
+            newPane.setMaxHeight(height);
+            newPane.setMaxWidth(width);
             drawImage(canvasMatrix, imageNew);
             hCanvasText.setVisible(true);
             wCanvasText.setVisible(true);
@@ -151,8 +163,10 @@ public class Controller {
         imgSizeBtn.setOnAction(e -> {
             int width = Integer.parseInt(imageWidth.getText());
             int height = Integer.parseInt(imageHeight.getText());
-            imageOld.setFitWidth(width);
-            imageOld.setFitHeight(height);
+            imageNew.setFitWidth(width);
+            imageNew.setFitHeight(height);
+            newPane.setMaxWidth(width);
+            newPane.setMaxHeight(height);
         });
 
         //Выделение
@@ -166,9 +180,20 @@ public class Controller {
 
         oldPane.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
             System.out.println("released");
-            System.out.println("start: " + rect.getStartX() + " " + rect.getStartY());
-            System.out.println("end: " + e.getX() + " " + e.getY());
 
+            //По этому ректанглу вырезать из матрицы
+            System.out.println("rect " + rect.getStartX() + " " + rect.getStartY() + " " + rect.getHeight() + " " + rect.getWidth());
+            rect.setEndX(e.getX());
+            rect.setEndY(e.getY());
+
+            int[][] area = ImageCutter.cutOut(bmp.getPixels(), rect);
+            int[][] matrix = newCanvas.addImage(area);
+            drawImage(matrix, imageNew);
+            //
+            //oldPane.getChildren().removeAll();
+        });
+
+        imageOld.addEventFilter(MouseEvent.MOUSE_DRAGGED, e -> {
             double x, y, w, h;
             if (e.getX() > (int) rect.getStartX()) {
                 x = rect.getStartX();
@@ -187,18 +212,47 @@ public class Controller {
             }
 
             Rectangle rectangle = new Rectangle(x,y,w,h);
+            rect.setHeight(h);
+            rect.setWidth(w);
+
             rectangle.setStroke(Color.rgb(0, 0, 0));
             rectangle.setStrokeWidth(2);
             rectangle.setFill(Color.rgb(255, 255, 255, 0.001));
-
+            oldPane.getChildren().removeAll();
+            drawImage(bmp.getPixels(), imageOld);
             oldPane.getChildren().add(rectangle);
         });
 
-        imageOld.addEventFilter(MouseEvent.MOUSE_DRAGGED, e -> {
+        //Движение области
+        newPane.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+            System.out.println("NP");
+            if(newCanvas.checkPosition((int)e.getX(), (int)e.getY())) {
+                preX = (int)e.getX();
+                preY = (int)e.getY();
+                moving = true;
+            }
+        });
 
+        newPane.addEventFilter(MouseEvent.MOUSE_DRAGGED, e -> {
+            System.out.println("ND");
+            if(moving) {
+                int[][] matrix = newCanvas.moveArea((int)(e.getX() - preX), (int)(e.getY() - preY));
+                drawImage(matrix, imageNew);
+            }
+            preX = (int)e.getX();
+            preY = (int)e.getY();
+        });
+
+        newPane.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
+            System.out.println("REL");
+            moving = false;
+        });
+
+        //Очищаем полотно
+        clearBtn.setOnAction(e -> {
+            drawImage(newCanvas.clearCanvas(), imageNew);
         });
     }
-
 
     public void decode(String fileName) throws Exception {
         File file = new File(fileName);
@@ -211,6 +265,11 @@ public class Controller {
         BufferedImage drawImage = JpegEncoder.encode(matrix, matrix[0].length, matrix.length);
         imageView.setFitWidth(matrix[0].length);
         imageView.setFitHeight(matrix.length);
+        imageView.setImage(SwingFXUtils.toFXImage(drawImage, null));
+    }
+
+    public void addImage(int[][] matrix, ImageView imageView) {
+        BufferedImage drawImage = JpegEncoder.encode(matrix, matrix[0].length, matrix.length);
         imageView.setImage(SwingFXUtils.toFXImage(drawImage, null));
     }
 
