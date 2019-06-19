@@ -32,25 +32,24 @@
       </AnchorPane>
       <AnchorPane layoutX="1157.0" prefHeight="850.0" prefWidth="143.0" style="-fx-background-color: #546375;">
          <children>
-            <ColorPicker fx:id="colorPicker" layoutX="5.0" layoutY="241.0" />
-            <Button fx:id="canvasSizeBtn" layoutX="9.0" layoutY="356.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="117.0" text="CANVAS SIZE" />
-            <Label layoutX="28.0" layoutY="288.0" text="РАЗМЕР ХОЛСТА" />
-            <TextField fx:id="canvasHeight" layoutX="9.0" layoutY="305.0" prefHeight="25.0" prefWidth="117.0" />
-            <TextField fx:id="canvasWidth" layoutX="9.0" layoutY="331.0" prefHeight="25.0" prefWidth="117.0" />
-            <Button fx:id="clearBtn" layoutX="13.0" layoutY="425.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="117.0" text="ОЧИСТИТЬ" />
+            <ColorPicker fx:id="colorPicker" layoutX="13.0" layoutY="165.0" prefHeight="25.0" prefWidth="117.0" />
+            <Button fx:id="canvasSizeBtn" layoutX="13.0" layoutY="363.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="117.0" text="CANVAS SIZE" />
+            <Label layoutX="28.0" layoutY="282.0" text="Размер холста" textFill="WHITE" />
+            <TextField fx:id="canvasHeight" layoutX="13.0" layoutY="299.0" prefHeight="25.0" prefWidth="117.0" />
+            <TextField fx:id="canvasWidth" layoutX="13.0" layoutY="331.0" prefHeight="25.0" prefWidth="117.0" />
+            <Button fx:id="clearBtn" layoutX="13.0" layoutY="412.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="117.0" text="Очистить холст" />
+            <Label layoutX="9.0" layoutY="6.0" text="Размер изображения" textFill="WHITE" />
+            <Button fx:id="canvasColorBtn" layoutX="13.0" layoutY="230.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="117.0" text="Изменить цвет" />
+            <TextField fx:id="canvasColor" layoutX="13.0" layoutY="198.0" prefHeight="25.0" prefWidth="117.0" />
+            <Label layoutX="42.0" layoutY="146.0" text="Цвет холста" textFill="WHITE" />
          </children>
       </AnchorPane>
-      <Button fx:id="canvasColorBtn" layoutX="1170.0" layoutY="196.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="117.0" text="CANVAS COLOR" />
-      <Label layoutX="1182.0" layoutY="143.0" text="ЦВЕТ ХОЛСТА" />
-      <Label layoutX="1161.0" layoutY="3.0" text="РАЗМЕР ИЗОБРАЖЕНИЯ" />
-      <Button fx:id="imgSizeBtn" layoutX="1169.0" layoutY="88.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="117.0" text="IMG SIZE" />
-      <Label layoutX="1194.0" layoutY="720.0" text="СОХРАНИТЬ" />
-      <Button fx:id="saveBtn" layoutX="1170.0" layoutY="743.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="117.0" text="SAVE" />
-      <TextField fx:id="canvasColor" layoutX="1170.0" layoutY="163.0" prefHeight="25.0" prefWidth="117.0" />
+      <Button fx:id="imgSizeBtn" layoutX="1169.0" layoutY="88.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="117.0" text="Изменить размер" />
+      <Button fx:id="saveBtn" layoutX="1170.0" layoutY="743.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="117.0" text="Cохранить" />
       <TextField fx:id="imageWidth" layoutX="1170.0" layoutY="23.0" prefHeight="25.0" prefWidth="117.0" />
       <TextField fx:id="imageHeight" layoutX="1170.0" layoutY="57.0" prefHeight="25.0" prefWidth="117.0" />
       <Pane fx:id="pane" layoutX="1094.0" layoutY="20.0" prefHeight="25.0" prefWidth="52.0" />
-      <Button fx:id="exitBtn" layoutX="1170.0" layoutY="795.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="117.0" text="EXIT" />
+      <Button fx:id="exitBtn" layoutX="1170.0" layoutY="795.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="117.0" text="Выход" />
       <ImageView fx:id="imageNew" fitHeight="710.0" fitWidth="573.0" layoutX="583.0" layoutY="143.0" pickOnBounds="true" preserveRatio="true">
          <effect>
             <Blend />

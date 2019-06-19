@@ -10,7 +10,6 @@ public class ImageCutter {
         int y = 0;
 
         if(rect.getStartX() < rect.getEndX() && rect.getStartY() < rect.getEndY()) {
-            System.out.println("NORM");
             x = (int)rect.getStartX();
             y = (int)rect.getStartY();
         } else if(rect.getStartX() < rect.getEndX() && rect.getStartY() > rect.getEndY()) {
@@ -23,7 +22,6 @@ public class ImageCutter {
             x = (int)rect.getEndX();
             y = (int)rect.getStartY();
         }
-
 
         int k=0;
         for(int i = y; i<(y + rect.getHeight()); i++) {

@@ -5,7 +5,6 @@ public class BmpFile {
     private int width;
     private int height;
     private int size;
-    private int bitCount;
     private byte[] image;
     private int[][] pixels;
     private int offset;
@@ -33,14 +32,6 @@ public class BmpFile {
 
     public void setImage(byte[] image) {
         this.image = image;
-    }
-
-    public int getBitCount() {
-        return bitCount;
-    }
-
-    public void setBitCount(int bitCount) {
-        this.bitCount = bitCount;
     }
 
     public int getWidth() {

@@ -73,6 +73,7 @@ public class Controller {
     private ColorPicker colorPicker;
 
     private BmpFile bmp = new BmpFile();
+    private NewCanvas newCanvas = new NewCanvas();
 
     private int preX = 0;
     private int preY = 0;
@@ -80,7 +81,6 @@ public class Controller {
 
     @FXML
     void initialize() {
-        NewCanvas newCanvas = new NewCanvas();
         hText.setVisible(false);
         wText.setVisible(false);
         hCanvasText.setVisible(false);
@@ -107,6 +107,8 @@ public class Controller {
             if (file != null) {
                 fileName.append(file.getAbsolutePath());
                 try {
+                    newCanvas = new NewCanvas();
+
                     decode(fileName.toString());
                     hText.setText("Высота: " + bmp.getHeight());
                     wText.setText("Ширина: " + bmp.getWidth());
@@ -169,7 +171,6 @@ public class Controller {
             newPane.setMaxHeight(height);
         });
 
-        //Выделение
         Rect rect = new Rect();
 
         oldPane.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
@@ -179,21 +180,6 @@ public class Controller {
         });
 
         oldPane.addEventFilter(MouseEvent.MOUSE_RELEASED, e -> {
-            System.out.println("released");
-
-            //По этому ректанглу вырезать из матрицы
-            System.out.println("rect " + rect.getStartX() + " " + rect.getStartY() + " " + rect.getHeight() + " " + rect.getWidth());
-            rect.setEndX(e.getX());
-            rect.setEndY(e.getY());
-
-            int[][] area = ImageCutter.cutOut(bmp.getPixels(), rect);
-            int[][] matrix = newCanvas.addImage(area);
-            drawImage(matrix, imageNew);
-            //
-            //oldPane.getChildren().removeAll();
-        });
-
-        imageOld.addEventFilter(MouseEvent.MOUSE_DRAGGED, e -> {
             double x, y, w, h;
             if (e.getX() > (int) rect.getStartX()) {
                 x = rect.getStartX();
@@ -221,9 +207,21 @@ public class Controller {
             oldPane.getChildren().removeAll();
             drawImage(bmp.getPixels(), imageOld);
             oldPane.getChildren().add(rectangle);
+
+            System.out.println("released");
+            System.out.println("rect " + rect.getStartX() + " " + rect.getStartY() + " " + rect.getHeight() + " " + rect.getWidth());
+            rect.setEndX(e.getX());
+            rect.setEndY(e.getY());
+
+            int[][] area = ImageCutter.cutOut(bmp.getPixels(), rect);
+            int[][] matrix = newCanvas.addImage(area);
+            drawImage(matrix, imageNew);
         });
 
-        //Движение области
+        imageOld.addEventFilter(MouseEvent.MOUSE_DRAGGED, e -> {
+
+        });
+
         newPane.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
             System.out.println("NP");
             if(newCanvas.checkPosition((int)e.getX(), (int)e.getY())) {
@@ -248,7 +246,6 @@ public class Controller {
             moving = false;
         });
 
-        //Очищаем полотно
         clearBtn.setOnAction(e -> {
             drawImage(newCanvas.clearCanvas(), imageNew);
         });
@@ -265,11 +262,6 @@ public class Controller {
         BufferedImage drawImage = JpegEncoder.encode(matrix, matrix[0].length, matrix.length);
         imageView.setFitWidth(matrix[0].length);
         imageView.setFitHeight(matrix.length);
-        imageView.setImage(SwingFXUtils.toFXImage(drawImage, null));
-    }
-
-    public void addImage(int[][] matrix, ImageView imageView) {
-        BufferedImage drawImage = JpegEncoder.encode(matrix, matrix[0].length, matrix.length);
         imageView.setImage(SwingFXUtils.toFXImage(drawImage, null));
     }
 
